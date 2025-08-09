@@ -7,6 +7,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -32,6 +35,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+
+
 builder.Services.AddAuthorization();//agregado*****
 
 // DI - repos & services
@@ -43,6 +48,22 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 // FluentValidation (si usas validators)
 //builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("*", builder =>
+//    {
+//        builder.AllowAnyHeader()
+//        .AllowAnyMethod()
+//        .AllowCredentials();
+//    });
+//});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder => builder.AllowAnyOrigin()); // Permite cualquier origen
+});
+
 var app = builder.Build();
 
 
@@ -53,10 +74,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//app.UseCors("CorsPolicy");
+app.UseCors(build => build.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();//agregado*****
 app.UseAuthorization();
+
+
+// 2. Habilitar la política CORS
+//app.UseCors("AllowAllOrigins");
 
 app.MapControllers();
 
